@@ -176,11 +176,11 @@ def DataPreparation(dataFrame, averagePerBin):
     dataFrameZeroAngle = dataFrame[condition]
     fraction = averagePerBin/len(dataFrameZeroAngle) 
     print("Fraction = ", fraction)
-    print ("Data entries to be removed: ", len(dataFrameZeroAngle))
-    
+    print ("Data entries removed ( -0.1 < steering < 0.1): ", len(dataFrameZeroAngle))
     dataFrameCleansed= dataFrame[~condition]
-    print (len(dataFrameCleansed))
+    print ("Data entries with |steering| > 0.1: ", len(dataFrameCleansed))    
     dataFrameZeroAngle = dataFrameZeroAngle.sample(frac=3*fraction,random_state = RandomState+3)
+    print ("Data entries added back ( -0.1 < steering < 0.1): ", len(dataFrameZeroAngle))
     newDataFrame = pd.concat([dataFrameCleansed, dataFrameZeroAngle]) 
     newDataFrame = newDataFrame.sample(frac =1.0, random_state = RandomState+2)
     return newDataFrame
