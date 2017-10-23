@@ -5,13 +5,15 @@ import os
 import shutil
 
 import numpy as np
+import cv2
 import socketio
 import eventlet
 import eventlet.wsgi
 from PIL import Image
 from flask import Flask
 from io import BytesIO
-
+import tensorflow as tf
+from data import ImagePreprocessing
 from keras.models import load_model
 import h5py
 from keras import __version__ as keras_version
@@ -48,6 +50,7 @@ set_speed = 9
 controller.set_desired(set_speed)
 
 
+
 @sio.on('telemetry')
 def telemetry(sid, data):
     if data:
@@ -61,6 +64,10 @@ def telemetry(sid, data):
         imgString = data["image"]
         image = Image.open(BytesIO(base64.b64decode(imgString)))
         image_array = np.asarray(image)
+        image_array = cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR)
+        image_array = ImagePreprocessing(image_array, "Nvidia")
+        
+        
         steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
 
         throttle = controller.update(float(speed))
@@ -109,6 +116,10 @@ if __name__ == '__main__':
         help='Path to image folder. This is where the images from the run will be saved.'
     )
     args = parser.parse_args()
+    from keras.backend.tensorflow_backend import set_session
+    config = tf.ConfigProto()
+    config.gpu_options.per_process_gpu_memory_fraction = 0.3
+    set_session(tf.Session(config=config))
 
     # check that model Keras version is same as local Keras version
     f = h5py.File(args.model, mode='r')
