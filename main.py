@@ -25,9 +25,11 @@ print("Number of data sets in validation data ", len(validationData))
 
 Model = 'Other'
 Model = 'Nvidia'
-trainingGenerator = DataGenerator(trainingData, Model, batchSize =64)
-validationGenerator = DataGenerator(validationData, Model, batchSize =64)
+trainingGenerator = DataGenerator(trainingData, Model, batchSize =128)
+validationGenerator = DataGenerator(validationData, Model, batchSize =128)
 
+
+Models = ["NvidiaOriginal", "NvidiaWithActivation", "NvidiaWithDropout"]
 
 #DataVisualization(newSet)
 if(Model == 'Nvidia'):

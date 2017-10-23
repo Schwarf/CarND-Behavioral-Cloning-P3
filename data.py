@@ -15,7 +15,7 @@ import sklearn
 import model
 import tensorflow as tf
 
-
+RandomState = 42
 
 
 def LoadCSVFiles():
@@ -37,10 +37,10 @@ def LoadCSVFiles():
 Fixed random state to make sure that training and test data are always split in the same way
 '''
 def SplitDataInTrainingAndValidationSet(dataFrame):
-    RandomState = 128977
+    
     #trainingData, validationData = train_test_split(dataFrame, random_state = RandomState, test_size =0.2)
     
-    trainingData, validationData = train_test_split(dataFrame, test_size =0.2)
+    trainingData, validationData = train_test_split(dataFrame, random_state = RandomState, test_size =0.2)
     return trainingData, validationData  
 
 
@@ -81,12 +81,10 @@ def RandomizeBrightness(image):
 
 
 def RandomShift(image,angle,translationMax):
-    # Translation
-
     widthTranslation = translationMax*np.random.uniform()-translationMax/2.0
     adjustedAngle = angle + widthTranslation/translationMax*2*.2
     heightTranslation = 40*np.random.uniform()-40/2
-    #tr_y = 0
+    
     translationMatrix = np.float32([[1,0,widthTranslation],[0,1,heightTranslation]])
     translatedImage = cv2.warpAffine(image,translationMatrix,(image.shape[1],image.shape[0]))
 
@@ -138,9 +136,9 @@ def DataAugmentation(sample):
 #    if cv2.waitKey(5000) & 0xFF == ord('q'):
 #        x =1
 
-    #imageWithShadows = AddRandomShadow(brightedImage)
+    imageWithShadows = AddRandomShadow(brightedImage)
 
-    return brightedImage, shiftedAngle 
+    return imageWithShadows, shiftedAngle 
             
 '''
 Data preprocessing for all images
@@ -150,12 +148,13 @@ def ImagePreprocessing(inputImage, model):
     imageHeight = inputImage.shape[0] 
     imageWidth = inputImage.shape[1]
     newImage = inputImage[50:140,:]
-    newImage = cv2.cvtColor(inputImage, cv2.COLOR_BGR2YUV)
+    
     if(model == "Nvidia"):
         newImage = cv2.resize(newImage,(200,66), interpolation = cv2.INTER_AREA)
     elif(model == "Other"):
         newImage = cv2.resize(newImage,(32,32), interpolation = cv2.INTER_AREA)
-        
+    
+    newImage = cv2.cvtColor(newImage, cv2.COLOR_BGR2YUV)    
     newImage = newImage/127.5 - 1.0
     
     return newImage
@@ -173,12 +172,17 @@ def DataVisualization(labels):
     
 
 def DataPreparation(dataFrame, averagePerBin):
-    dataFrameZeroAngle = dataFrame[dataFrame['Steering']==0.0]
+    condition = (dataFrame['Steering'] < 0.1) & ( dataFrame['Steering'] > -0.1)
+    dataFrameZeroAngle = dataFrame[condition]
     fraction = averagePerBin/len(dataFrameZeroAngle) 
     print("Fraction = ", fraction)
-    dataFrameCleansed= dataFrame[dataFrame['Steering'] != 0.0]
-    dataFrameZeroAngle = dataFrameZeroAngle.sample(frac=2*fraction)
+    print ("Data entries to be removed: ", len(dataFrameZeroAngle))
+    
+    dataFrameCleansed= dataFrame[~condition]
+    print (len(dataFrameCleansed))
+    dataFrameZeroAngle = dataFrameZeroAngle.sample(frac=3*fraction,random_state = RandomState+3)
     newDataFrame = pd.concat([dataFrameCleansed, dataFrameZeroAngle]) 
+    newDataFrame = newDataFrame.sample(frac =1.0, random_state = RandomState+2)
     return newDataFrame
 
 '''
@@ -206,6 +210,6 @@ def DataGenerator(data, model, batchSize = 128):
         labels = np.array(angles)
         assert (len(features) == len(labels)  )
         
-        yield sklearn.utils.shuffle(features, labels)
+        yield sklearn.utils.shuffle(features, labels, random_state = RandomState+1)
         
 
