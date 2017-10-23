@@ -57,8 +57,10 @@ def OtherModel(trainingGenerator, validationGenerator):
     Model.save('./model.h5')
 
 
-def TheNvidiaModel(trainingGenerator, validationGenerator):
-    print ("The modified Nvidia model")
+
+
+def TheNvidiaModel2(trainingGenerator, validationGenerator):
+    print ("The second modified Nvidia model")
     print("Keras Version: ", keras.__version__)
     dropoutRate = 0.5
     Model = Sequential()
@@ -75,33 +77,60 @@ def TheNvidiaModel(trainingGenerator, validationGenerator):
     Model.add(Activation('relu'))
     Model.add(Convolution2D(64, 3, 3, subsample=(2, 2), border_mode='valid'))
     Model.add(Activation('relu'))
-
-    #Model.add(Dropout(dropoutRate))
+    Model.add(Dropout(dropoutRate))
     
-    #Input = 64x1x18
-    ### Flatten 
     Model.add(Flatten())
     
-    #Input = 1152
     Model.add(Dense(1000))
     
     Model.add(Dense(100))
     
     Model.add(Dense(10))
     
-    #Input = 10
     Model.add(Dense(1))
     
     print(Model.summary())
     
-    #Compile Model with Adam optimizer and loss function equal to mean square error
     Model.compile(optimizer =Adam(lr = 0.0001), loss= 'mse')
     
     history = Model.fit_generator(trainingGenerator, validation_data=validationGenerator, nb_val_samples=2560, samples_per_epoch=20480, nb_epoch=10, verbose=2)
     
-     # Save model data
     Model.save('./model.h5')
-#    Model.save_weights('./model.h5')
-#    json_string = Model.to_json()
-#    with open('./model.json', 'w') as f:
-#        f.write(json_string)
+
+
+def TheNvidiaModel1(trainingGenerator, validationGenerator):
+    print ("The first modified Nvidia model, hits the curb in the right curve.")
+    print("Keras Version: ", keras.__version__)
+    dropoutRate = 0.5
+    Model = Sequential()
+
+    Model.add(Convolution2D(24, 5, 5, subsample=(2, 2), border_mode='valid', input_shape=(66,200,3) ))
+    Model.add(Activation('relu'))
+    Model.add(Dropout(dropoutRate))
+    
+    Model.add(Convolution2D(36, 5, 5, subsample=(2, 2), border_mode='valid' ))
+    Model.add(Activation('relu'))
+    Model.add(Convolution2D(36, 5, 5, subsample=(2, 2), border_mode='valid' ))
+    Model.add(Activation('relu'))
+    Model.add(Convolution2D(64, 3, 3, subsample=(2, 2), border_mode='same'))
+    Model.add(Activation('relu'))
+    Model.add(Convolution2D(64, 3, 3, subsample=(2, 2), border_mode='valid'))
+    Model.add(Activation('relu'))
+    
+    Model.add(Flatten())
+    
+    Model.add(Dense(1000))
+    
+    Model.add(Dense(100))
+    
+    Model.add(Dense(10))
+    
+    Model.add(Dense(1))
+    
+    print(Model.summary())
+    
+    Model.compile(optimizer =Adam(lr = 0.0001), loss= 'mse')
+    
+    history = Model.fit_generator(trainingGenerator, validation_data=validationGenerator, nb_val_samples=2560, samples_per_epoch=20480, nb_epoch=10, verbose=2)
+    
+    Model.save('./model.h5')

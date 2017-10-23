@@ -149,7 +149,7 @@ def ImagePreprocessing(inputImage, model):
     imageWidth = inputImage.shape[1]
     newImage = inputImage[50:140,:]
     
-    if(model == "Nvidia"):
+    if(model[:-1] == "Nvidia"):
         newImage = cv2.resize(newImage,(200,66), interpolation = cv2.INTER_AREA)
     elif(model == "Other"):
         newImage = cv2.resize(newImage,(32,32), interpolation = cv2.INTER_AREA)

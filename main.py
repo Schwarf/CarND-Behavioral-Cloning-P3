@@ -24,7 +24,7 @@ print("Number of data sets in training data ", len(trainingData))
 print("Number of data sets in validation data ", len(validationData))
 
 Model = 'Other'
-Model = 'Nvidia'
+Model = 'Nvidia1'
 trainingGenerator = DataGenerator(trainingData, Model, batchSize =128)
 validationGenerator = DataGenerator(validationData, Model, batchSize =128)
 
@@ -32,8 +32,11 @@ validationGenerator = DataGenerator(validationData, Model, batchSize =128)
 Models = ["NvidiaOriginal", "NvidiaWithActivation", "NvidiaWithDropout"]
 
 #DataVisualization(newSet)
-if(Model == 'Nvidia'):
-    model.TheNvidiaModel(trainingGenerator, validationGenerator)
+if(Model == 'Nvidia1'):
+    model.TheNvidiaModel1(trainingGenerator, validationGenerator)
+elif(Model == 'Nvidia2'):
+    model.TheNvidiaModel2(trainingGenerator, validationGenerator)
+
 elif(Model == 'Other'):
     model.OtherModel(trainingGenerator, validationGenerator)
 
