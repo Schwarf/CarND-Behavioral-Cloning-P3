@@ -1,0 +1,20 @@
+Epoch 1/10
+22s - loss: 0.0419 - val_loss: 0.0626
+Epoch 2/10
+13s - loss: 0.0078 - val_loss: 0.0625
+Epoch 3/10
+13s - loss: 0.0036 - val_loss: 0.0623
+Epoch 4/10
+13s - loss: 0.0024 - val_loss: 0.0596
+Epoch 5/10
+13s - loss: 0.0019 - val_loss: 0.0586
+Epoch 6/10
+13s - loss: 0.0016 - val_loss: 0.0600
+Epoch 7/10
+13s - loss: 0.0013 - val_loss: 0.0574
+Epoch 8/10
+13s - loss: 0.0012 - val_loss: 0.0563
+Epoch 9/10
+13s - loss: 0.0010 - val_loss: 0.0563
+Epoch 10/10
+13s - loss: 9.4214e-04 - val_loss: 0.0554

@@ -33,23 +33,30 @@ def LoadCSVFiles():
     print (dataFrame.describe())
     return dataFrame
  
-'''
-Fixed random state to make sure that training and test data are always split in the same way
-'''
+
 def SplitDataInTrainingAndValidationSet(dataFrame):
-    
     #trainingData, validationData = train_test_split(dataFrame, random_state = RandomState, test_size =0.2)
-    
     trainingData, validationData = train_test_split(dataFrame, random_state = RandomState, test_size =0.2)
     return trainingData, validationData  
 
 
 
-    
-    
+def DataPreparation(dataFrame, averagePerBin):
+    condition = (dataFrame['Steering'] < 0.1) & ( dataFrame['Steering'] > -0.1)
+    dataFrameZeroAngle = dataFrame[condition]
+    fraction = averagePerBin/len(dataFrameZeroAngle) 
+    print("Fraction = ", fraction)
+    print ("Data entries removed ( -0.1 < steering < 0.1): ", len(dataFrameZeroAngle))
+    dataFrameCleansed= dataFrame[~condition]
+    print ("Data entries with |steering| > 0.1: ", len(dataFrameCleansed))    
+    dataFrameZeroAngle = dataFrameZeroAngle.sample(frac=3*fraction,random_state = RandomState+3)
+    print ("Data entries added back ( -0.1 < steering < 0.1): ", len(dataFrameZeroAngle))
+    newDataFrame = pd.concat([dataFrameCleansed, dataFrameZeroAngle]) 
+    newDataFrame = newDataFrame.sample(frac =1.0, random_state = RandomState+2)
+    return newDataFrame
 
-
-       
+    
+      
         
     
 def RandomCamera(sample):
@@ -103,22 +110,24 @@ def RandomFlip(image, angle):
 
 def AddRandomShadow(image):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2YUV)
-    top_y = 320*np.random.uniform()
-    top_x = 0
-    bot_x = 160
-    bot_y = 320*np.random.uniform()
+    left = 320*np.random.uniform()
+    top = 0
+    bottom = 160
+    right = 320*np.random.uniform()
     X_m = np.mgrid[0:image.shape[0],0:image.shape[1]][0]
     Y_m = np.mgrid[0:image.shape[0],0:image.shape[1]][1]
-    shadow_mask = 0*image[:,:,0]
-    shadow_mask[((X_m-top_x)*(bot_y-top_y) -(bot_x - top_x)*(Y_m-top_y) >=0)]=1
+    
+    shadowMask = 0*image[:,:,0]
+    shadowMask[((X_m-top)*(right-left) -(bottom - top)*(Y_m-left) >=0)]=1
+
     if np.random.randint(2)==1:
         random_bright = .5
-        cond1 = shadow_mask==1
-        cond0 = shadow_mask==0
+        condition1 = shadowMask==1
+        condition2 = shadowMask==0
         if np.random.randint(2)==1:
-            image[:,:,0][cond1] = image[:,:,0][cond1]*random_bright
+            image[:,:,0][condition1] = image[:,:,0][condition1]*random_bright
         else:
-            image[:,:,0][cond0] = image[:,:,0][cond0]*random_bright    
+            image[:,:,0][condition2] = image[:,:,0][condition2]*random_bright    
 
      
     image = cv2.cvtColor(image, cv2.COLOR_YUV2BGR)
@@ -160,30 +169,19 @@ def ImagePreprocessing(inputImage, model):
     return newImage
 
 
-def DataVisualization(labels):
+def DataVisualization(labels, title):
     binNumber = 20
-    plt.hist(labels, bins=binNumber, range = (-1, 1))
+    plt.hist(labels, bins=binNumber, range = (-1, 1), label = "Including steering value 0.0")
     cleanedLabels = list(filter(lambda a: a != 0.0, labels))
-    plt.hist(cleanedLabels, bins=binNumber, range = (-1, 1))
+    plt.hist(cleanedLabels, bins=binNumber, range = (-1, 1), label = "Excluding steering value 0.0")
     averagePerBin = len(labels)/binNumber
-    plt.axhline(y= averagePerBin, xmin=-1, xmax=1, linewidth=2, color = 'b')
+    plt.axhline(y= averagePerBin, xmin=-1, xmax=1, linewidth=2, color = 'b', label = "Average count per bin")
+    plt.legend(loc='upper left', prop={'size': 10})
+    plt.title(title)
     plt.show()
     return averagePerBin
     
 
-def DataPreparation(dataFrame, averagePerBin):
-    condition = (dataFrame['Steering'] < 0.1) & ( dataFrame['Steering'] > -0.1)
-    dataFrameZeroAngle = dataFrame[condition]
-    fraction = averagePerBin/len(dataFrameZeroAngle) 
-    print("Fraction = ", fraction)
-    print ("Data entries removed ( -0.1 < steering < 0.1): ", len(dataFrameZeroAngle))
-    dataFrameCleansed= dataFrame[~condition]
-    print ("Data entries with |steering| > 0.1: ", len(dataFrameCleansed))    
-    dataFrameZeroAngle = dataFrameZeroAngle.sample(frac=3*fraction,random_state = RandomState+3)
-    print ("Data entries added back ( -0.1 < steering < 0.1): ", len(dataFrameZeroAngle))
-    newDataFrame = pd.concat([dataFrameCleansed, dataFrameZeroAngle]) 
-    newDataFrame = newDataFrame.sample(frac =1.0, random_state = RandomState+2)
-    return newDataFrame
 
 '''
 Data generator which yields the batches we need

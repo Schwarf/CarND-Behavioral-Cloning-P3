@@ -16,9 +16,9 @@ set_session(tf.Session(config=config))
 
 csvData = LoadCSVFiles()
 
-averagePerBin = DataVisualization(csvData['Steering'].tolist())
+averagePerBin = DataVisualization(csvData['Steering'].tolist(), "Original data")
 csvData = DataPreparation(csvData, averagePerBin)
-DataVisualization(csvData['Steering'].tolist())
+DataVisualization(csvData['Steering'].tolist(), "Cleansed data")
 trainingData, validationData = SplitDataInTrainingAndValidationSet(csvData)
 print("Number of data sets in training data ", len(trainingData))
 print("Number of data sets in validation data ", len(validationData))
@@ -33,7 +33,7 @@ Models = ["NvidiaOriginal", "NvidiaWithActivation", "NvidiaWithDropout"]
 
 #DataVisualization(newSet)
 if(Model == 'Nvidia1'):
-    model.TheNvidiaModel1(trainingGenerator, validationGenerator)
+    model.TheWorkingNvidiaMod(trainingGenerator, validationGenerator)
 elif(Model == 'Nvidia2'):
     model.TheNvidiaModel2(trainingGenerator, validationGenerator)
 

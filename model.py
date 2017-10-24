@@ -11,7 +11,7 @@ from keras.layers.pooling import MaxPooling2D, MaxPooling1D
 from keras.layers.advanced_activations import ELU
 from keras.regularizers import l2, activity_l2
 from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint, Callback
+from keras.utils.visualize_util import plot
 import keras
 
 
@@ -67,17 +67,15 @@ def TheNvidiaModel2(trainingGenerator, validationGenerator):
 
     Model.add(Convolution2D(24, 5, 5, subsample=(2, 2), border_mode='valid', input_shape=(66,200,3) ))
     Model.add(Activation('relu'))
-    Model.add(Dropout(dropoutRate))
-    
     Model.add(Convolution2D(36, 5, 5, subsample=(2, 2), border_mode='valid' ))
     Model.add(Activation('relu'))
-    Model.add(Convolution2D(36, 5, 5, subsample=(2, 2), border_mode='valid' ))
+    Model.add(Convolution2D(48, 5, 5, subsample=(2, 2), border_mode='valid' ))
     Model.add(Activation('relu'))
-    Model.add(Convolution2D(64, 3, 3, subsample=(2, 2), border_mode='same'))
+    Model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode='valid'))
     Model.add(Activation('relu'))
-    Model.add(Convolution2D(64, 3, 3, subsample=(2, 2), border_mode='valid'))
+    Model.add(Convolution2D(64, 3, 3, subsample=(1, 1), border_mode='valid'))
     Model.add(Activation('relu'))
-    Model.add(Dropout(dropoutRate))
+
     
     Model.add(Flatten())
     
@@ -98,13 +96,13 @@ def TheNvidiaModel2(trainingGenerator, validationGenerator):
     Model.save('./model.h5')
 
 
-def TheNvidiaModel1(trainingGenerator, validationGenerator):
-    print ("The first modified Nvidia model, hits the curb in the right curve.")
+def TheWorkingNvidiaMod(trainingGenerator, validationGenerator):
+    print ("The first modified Nvidia model")
     print("Keras Version: ", keras.__version__)
     dropoutRate = 0.5
     Model = Sequential()
-
-    Model.add(Convolution2D(24, 5, 5, subsample=(2, 2), border_mode='valid', input_shape=(66,200,3) ))
+    
+    Model.add(Convolution2D(24, 5, 5, subsample=(2, 2), border_mode='valid', input_shape=(66,200,3)))
     Model.add(Activation('relu'))
     Model.add(Dropout(dropoutRate))
     
@@ -119,13 +117,13 @@ def TheNvidiaModel1(trainingGenerator, validationGenerator):
     
     Model.add(Flatten())
     
-    Model.add(Dense(1000))
-    
     Model.add(Dense(100))
     
     Model.add(Dense(10))
     
     Model.add(Dense(1))
+    
+    plot(Model, to_file="model.png",show_shapes=True)
     
     print(Model.summary())
     
